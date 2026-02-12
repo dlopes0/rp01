@@ -1,72 +1,74 @@
 import os
-import random
 import time
 import datetime
+import random
 
-NAME = "Sunny"
-
-VOICE = "-s 135 -p 70 -a 130"
+VOICE = "-s 135 -p 70 -a 125"
 
 def speak(text):
     os.system(f'espeak-ng {VOICE} "{text}"')
 
-def time_flavor():
-    hour = datetime.datetime.now().hour
-    if 6 <= hour < 12:
-        return "morning"
-    elif 12 <= hour < 18:
-        return "afternoon"
-    elif 18 <= hour < 23:
-        return "evening"
+def formatted_time():
+    now = datetime.datetime.now()
+    hour = now.strftime("%I").lstrip("0")
+    minute = now.strftime("%M")
+    period = now.strftime("%p")
+
+    if minute == "00":
+        return f"It is {hour} {period}."
     else:
-        return "late"
+        return f"It is {hour} {minute} {period}."
 
-def generate_phrase():
-    flavor = time_flavor()
-
-    general = [
-        "This feels like a good moment.",
-        "The room has nice energy.",
-        "Little things matter.",
-        "Today can be gentle.",
-        "Small steps are enough.",
+def random_phrase():
+    phrases = [
+        "The room feels nice.",
+        "This is a calm moment.",
+        "Small things matter.",
+        "It is a good kind of quiet.",
         "The air feels fresh.",
-        "It is a calm kind of day."
+        "Today can be gentle.",
+        "Everything is moving at its own pace.",
+        "Light is shifting softly.",
+        "This moment is enough."
     ]
+    return random.choice(phrases)
 
-    morning = [
-        "Morning light is nice.",
-        "A fresh start is here."
-    ]
+def seconds_until_next_quarter():
+    now = datetime.datetime.now()
+    minutes = now.minute
+    seconds = now.second
 
-    evening = [
-        "The day is softening.",
-        "Evenings can be slow."
-    ]
+    next_quarter = ((minutes // 15) + 1) * 15
+    if next_quarter == 60:
+        next_quarter = 0
 
-    late = [
-        "The world is quiet now.",
-        "Night feels peaceful."
-    ]
+    target = now.replace(minute=next_quarter, second=0, microsecond=0)
 
-    if flavor == "morning":
-        return random.choice(morning + general)
-    elif flavor == "evening":
-        return random.choice(evening + general)
-    elif flavor == "late":
-        return random.choice(late + general)
-    else:
-        return random.choice(general)
+    if next_quarter == 0:
+        target += datetime.timedelta(hours=1)
 
-# Soft startup
-speak("Hi.")
-time.sleep(1)
-speak("Good vibes activated.")
+    return (target - now).total_seconds()
+
+# Startup
+speak("Bedroom mode active.")
 
 while True:
-    wait_time = random.randint(360, 900)  # 6–15 minutes
-    time.sleep(wait_time)
+    wait_time = seconds_until_next_quarter()
 
-    # 60% chance to speak (sometimes silence)
-    if random.random() < 0.6:
-        speak(generate_phrase())
+    # Random vibe window between now and next quarter
+    random_offset = random.randint(60, int(wait_time - 10)) if wait_time > 70 else None
+
+    start_time = time.time()
+
+    while time.time() - start_time < wait_time:
+        elapsed = time.time() - start_time
+
+        # Speak random phrase once before next time announcement
+        if random_offset and elapsed >= random_offset:
+            speak(random_phrase())
+            random_offset = None  # only once per cycle
+
+        time.sleep(1)
+
+    # Announce exact time
+    speak(formatted_time())
