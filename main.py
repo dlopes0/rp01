@@ -3,33 +3,32 @@ import time
 import datetime
 import random
 
-VOICE = "-s 135 -p 70 -a 125"
+VOICE = "-v pt -s 135 -p 70 -a 125"
 
 def speak(text):
     os.system(f'espeak-ng {VOICE} "{text}"')
 
 def formatted_time():
     now = datetime.datetime.now()
-    hour = now.strftime("%I").lstrip("0")
-    minute = now.strftime("%M")
-    period = now.strftime("%p")
+    hour = now.hour
+    minute = now.minute
 
-    if minute == "00":
-        return f"It is {hour} {period}."
+    if minute == 0:
+        return f"São {hour} horas."
     else:
-        return f"It is {hour} {minute} {period}."
+        return f"São {hour} e {minute}."
 
 def random_phrase():
     phrases = [
-        "The room feels nice.",
-        "This is a calm moment.",
-        "Small things matter.",
-        "It is a good kind of quiet.",
-        "The air feels fresh.",
-        "Today can be gentle.",
-        "Everything is moving at its own pace.",
-        "Light is shifting softly.",
-        "This moment is enough."
+        "O quarto está com uma energia boa.",
+        "Este é um momento tranquilo.",
+        "As pequenas coisas importam.",
+        "O silêncio é confortável.",
+        "O ar parece leve.",
+        "Hoje pode ser gentil.",
+        "Tudo está no seu próprio ritmo.",
+        "A luz está mudando devagar.",
+        "Este momento já é suficiente."
     ]
     return random.choice(phrases)
 
@@ -49,13 +48,13 @@ def seconds_until_next_quarter():
 
     return (target - now).total_seconds()
 
-# Startup
-speak("Bedroom mode active.")
+# Inicialização
+speak("Modo quarto ativado.")
 
 while True:
     wait_time = seconds_until_next_quarter()
 
-    # Random vibe window between now and next quarter
+    # Momento aleatório antes do próximo anúncio de hora
     random_offset = random.randint(60, int(wait_time - 10)) if wait_time > 70 else None
 
     start_time = time.time()
@@ -63,12 +62,11 @@ while True:
     while time.time() - start_time < wait_time:
         elapsed = time.time() - start_time
 
-        # Speak random phrase once before next time announcement
         if random_offset and elapsed >= random_offset:
             speak(random_phrase())
-            random_offset = None  # only once per cycle
+            random_offset = None
 
         time.sleep(1)
 
-    # Announce exact time
+    # Anuncia hora exata
     speak(formatted_time())
