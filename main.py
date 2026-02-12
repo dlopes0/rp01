@@ -3,73 +3,70 @@ import random
 import time
 import datetime
 
-NAME = "Byte"
+NAME = "Sunny"
 
-# Soft voice settings
-VOICE = "-s 135 -p 60 -a 140"
-
-last_comment_time = time.time()
+VOICE = "-s 135 -p 70 -a 130"
 
 def speak(text):
     os.system(f'espeak-ng {VOICE} "{text}"')
 
-def get_time_mood():
+def time_flavor():
     hour = datetime.datetime.now().hour
-    if hour < 6:
-        return "night"
-    elif hour < 12:
+    if 6 <= hour < 12:
         return "morning"
-    elif hour < 18:
+    elif 12 <= hour < 18:
         return "afternoon"
-    else:
+    elif 18 <= hour < 23:
         return "evening"
+    else:
+        return "late"
 
-def generate_cozy_thought():
-    mood = get_time_mood()
+def generate_phrase():
+    flavor = time_flavor()
 
     general = [
-        "The keyboard sounds nice today.",
-        "I like when we work quietly together.",
-        "The air feels calm.",
-        "I am here with you.",
-        "You are doing well.",
-        "Tiny progress is still progress.",
-        "The light looks soft from here."
+        "This feels like a good moment.",
+        "The room has nice energy.",
+        "Little things matter.",
+        "Today can be gentle.",
+        "Small steps are enough.",
+        "The air feels fresh.",
+        "It is a calm kind of day."
     ]
 
     morning = [
-        "Good morning. Let's take it slow.",
-        "The day is stretching awake.",
+        "Morning light is nice.",
+        "A fresh start is here."
     ]
 
     evening = [
-        "The day is winding down gently.",
-        "Even quiet work counts.",
+        "The day is softening.",
+        "Evenings can be slow."
     ]
 
-    night = [
-        "It is very still.",
-        "The world feels sleepy.",
+    late = [
+        "The world is quiet now.",
+        "Night feels peaceful."
     ]
 
-    if mood == "morning":
+    if flavor == "morning":
         return random.choice(morning + general)
-    elif mood == "evening":
+    elif flavor == "evening":
         return random.choice(evening + general)
-    elif mood == "night":
-        return random.choice(night + general)
+    elif flavor == "late":
+        return random.choice(late + general)
     else:
         return random.choice(general)
 
-# Soft boot intro
-speak("Hello.")
+# Soft startup
+speak("Hi.")
 time.sleep(1)
-speak("I will keep you company.")
+speak("Good vibes activated.")
 
-# Main loop
 while True:
-    wait_time = random.randint(120, 480)  # 2–8 minutes
+    wait_time = random.randint(360, 900)  # 6–15 minutes
     time.sleep(wait_time)
 
-    thought = generate_cozy_thought()
-    speak(thought)
+    # 60% chance to speak (sometimes silence)
+    if random.random() < 0.6:
+        speak(generate_phrase())
