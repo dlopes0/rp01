@@ -3,7 +3,7 @@ import time
 import datetime
 import random
 
-VOICE = "-v pt -s 135 -p 70 -a 125"
+VOICE = "-v pt -s 95 -p 80 -a 110"
 
 def speak(text):
     os.system(f'espeak-ng {VOICE} "{text}"')
