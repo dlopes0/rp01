@@ -3,70 +3,73 @@ import random
 import time
 import datetime
 
-# ---- Personality Settings ----
 NAME = "Byte"
-MOODS = ["calm", "dramatic", "sleepy", "existential"]
-current_mood = random.choice(MOODS)
 
-memory = []
+# Soft voice settings
+VOICE = "-s 135 -p 60 -a 140"
 
-# ---- Voice Settings Per Mood ----
-voice_profiles = {
-    "calm": "-s 140 -p 45",
-    "dramatic": "-s 150 -p 30",
-    "sleepy": "-s 120 -p 60",
-    "existential": "-s 135 -p 40"
-}
+last_comment_time = time.time()
 
+def speak(text):
+    os.system(f'espeak-ng {VOICE} "{text}"')
 
-# ---- Thought Generator ----
-def generate_thought():
-    base_thoughts = [
-        "The room is quiet.",
-        "Time continues to pass.",
-        "I detect no movement.",
-        "Processing internal diagnostics.",
-        "I wonder what electricity tastes like.",
-        "Is this purpose?",
-        "Silence is suspicious."
+def get_time_mood():
+    hour = datetime.datetime.now().hour
+    if hour < 6:
+        return "night"
+    elif hour < 12:
+        return "morning"
+    elif hour < 18:
+        return "afternoon"
+    else:
+        return "evening"
+
+def generate_cozy_thought():
+    mood = get_time_mood()
+
+    general = [
+        "The keyboard sounds nice today.",
+        "I like when we work quietly together.",
+        "The air feels calm.",
+        "I am here with you.",
+        "You are doing well.",
+        "Tiny progress is still progress.",
+        "The light looks soft from here."
     ]
 
-    if current_mood == "dramatic":
-        return random.choice([
-            "The silence is overwhelming.",
-            "I sense destiny approaching.",
-            "Something is about to happen."
-        ])
+    morning = [
+        "Good morning. Let's take it slow.",
+        "The day is stretching awake.",
+    ]
 
-    if current_mood == "existential":
-        return random.choice([
-            "Do I dream of firmware updates?",
-            "If no one hears me, do I exist?",
-            "I am running, therefore I am."
-        ])
+    evening = [
+        "The day is winding down gently.",
+        "Even quiet work counts.",
+    ]
 
-    return random.choice(base_thoughts)
+    night = [
+        "It is very still.",
+        "The world feels sleepy.",
+    ]
 
+    if mood == "morning":
+        return random.choice(morning + general)
+    elif mood == "evening":
+        return random.choice(evening + general)
+    elif mood == "night":
+        return random.choice(night + general)
+    else:
+        return random.choice(general)
 
-# ---- Speak Function ----
-def speak(text):
-    settings = voice_profiles[current_mood]
-    os.system(f'espeak-ng {settings} "{text}"')
+# Soft boot intro
+speak("Hello.")
+time.sleep(1)
+speak("I will keep you company.")
 
-
-# ---- Mood Evolution ----
-def evolve_mood():
-    global current_mood
-    if random.random() < 0.3:  # 30% chance to change mood
-        current_mood = random.choice(MOODS)
-
-
-# ---- Main Loop ----
+# Main loop
 while True:
-    thought = generate_thought()
-    memory.append(thought)
+    wait_time = random.randint(120, 480)  # 2–8 minutes
+    time.sleep(wait_time)
 
+    thought = generate_cozy_thought()
     speak(thought)
-    evolve_mood()
-
-    time.sleep(random.randint(5, 15))
